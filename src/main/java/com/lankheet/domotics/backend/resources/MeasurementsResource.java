@@ -1,4 +1,4 @@
-package com.lankheet.backend.resources;
+package com.lankheet.domotics.backend.resources;
 
 import java.util.List;
 import javax.ws.rs.GET;
@@ -7,7 +7,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
-import com.lankheet.domotics.DatabaseManager;
+import com.lankheet.domotics.backend.DatabaseManager;
 import com.lankheet.iot.datatypes.Measurement;
 
 @Path("/measurements")

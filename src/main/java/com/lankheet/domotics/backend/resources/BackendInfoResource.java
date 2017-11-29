@@ -1,4 +1,4 @@
-package com.lankheet.backend.resources;
+package com.lankheet.domotics.backend.resources;
 
 import java.io.IOException;
 import javax.ws.rs.GET;

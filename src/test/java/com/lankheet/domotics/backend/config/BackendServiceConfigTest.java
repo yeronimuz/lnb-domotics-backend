@@ -1,16 +1,16 @@
 /**
  * Lankheet Solutions. Do whatever you like, but kindly include the source as a reference.
  */
-package com.lankheet.domotics.config;
+package com.lankheet.domotics.backend.config;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.lankheet.domotics.config.DatabaseConfig;
-import com.lankheet.domotics.config.MqttConfig;
-import com.lankheet.domotics.config.BackendServiceConfig;
+import com.lankheet.domotics.backend.config.BackendServiceConfig;
+import com.lankheet.domotics.backend.config.DatabaseConfig;
+import com.lankheet.domotics.backend.config.MqttConfig;
 import cucumber.api.java.After;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;

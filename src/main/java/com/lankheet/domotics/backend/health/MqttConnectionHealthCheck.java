@@ -1,8 +1,8 @@
-package com.lankheet.domotics.health;
+package com.lankheet.domotics.backend.health;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import com.codahale.metrics.health.HealthCheck;
-import com.lankheet.domotics.MqttClientManager;
+import com.lankheet.domotics.backend.MqttClientManager;
 
 public class MqttConnectionHealthCheck extends HealthCheck {
 

@@ -4,7 +4,7 @@ apply plugin: 'gradle-one-jar'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
-version '0.1-SNAPSHOT'
+version '0.1'
 
 repositories {
     mavenLocal()

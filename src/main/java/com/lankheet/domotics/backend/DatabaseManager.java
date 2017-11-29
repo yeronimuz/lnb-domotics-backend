@@ -1,4 +1,4 @@
-package com.lankheet.domotics;
+package com.lankheet.domotics.backend;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import com.lankheet.domotics.config.DatabaseConfig;
+import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.iot.datatypes.Measurement;
 import io.dropwizard.lifecycle.Managed;
 

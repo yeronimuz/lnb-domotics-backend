@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.lankheet.domotics;
+package com.lankheet.domotics.backend;
 
 import static org.junit.Assert.assertTrue;
 import java.util.Date;
@@ -13,8 +13,8 @@ import javax.persistence.Persistence;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.lankheet.domotics.BackendService;
-import com.lankheet.domotics.config.DatabaseConfig;
+import com.lankheet.domotics.backend.BackendService;
+import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.domotics.testutils.TestUtils;
 import com.lankheet.iot.datatypes.Measurement;
 import com.lankheet.iot.datatypes.MeasurementType;
