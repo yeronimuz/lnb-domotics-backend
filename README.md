@@ -9,16 +9,20 @@ LNB domotics message server. Serving measurements from the local domotics server
 * Receive measurements from the local domotics message broker
 * Store these measurements in a database (one database per site), only if it is a new measurement. We don't need duplicate values.
 * Request measurements via REST interface.
+* Reconnecting when database or mqtt connection are gone.
 
 ## It lacks the following features:
-* resources for requesting more intelligent measurements
+* resources for requesting measurements more intelligently
 * Security (ahum); login and reading permissions
 * resources for adding homes, rooms, sensors, users and credentials
-* Accepting arrays of measurements
+* Accepting arrays of measurements, now it accepts one measurement per mqtt call
+* Erasing hunger and poverty from the planet's surface
 
 ## Technical specs
 * Accepts JSON measurements from a message broker, no aggregation, yet!
 * Uses JPA / Hibernate to store in MySQL. But it can also work with any other database as long as you specify the details in the yaml configuration file AND you put the driver JAR on the classpath.
+* Uses dropwizard as framework
+* Uses eclipse paho as mqtt client
 
 # How to setup the domotics eco-system:
 You could do this several ways. I installed mosquitto on 
@@ -50,3 +54,7 @@ Configuring the mosquitto (on site):
 1. Configure the user credentials in the application.yml configuration file.
 1. You are ready to start the service
 Please review the settings in the application.yml configuration file for logging, mqtt and database settings.
+
+# What's next?
+So now you have a micro service that handles your home's sensor data, how about that part? 
+See the power-meter repo: https://github.com/yeronimuz/PowerMeter

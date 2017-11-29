@@ -2,12 +2,12 @@ package com.lankheet.domotics;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.lankheet.backend.resources.BackendInfoResource;
+import com.lankheet.backend.resources.BackendServiceInfo;
+import com.lankheet.backend.resources.MeasurementsResource;
 import com.lankheet.domotics.config.BackendServiceConfig;
 import com.lankheet.domotics.health.DatabaseHealthCheck;
 import com.lankheet.domotics.health.MqttConnectionHealthCheck;
-import com.lankheet.domotics.resources.BackendInfoResource;
-import com.lankheet.domotics.resources.BackendServiceInfo;
-import com.lankheet.domotics.resources.MeasurementsResource;
 import com.lankheet.utils.TcpPortUtil;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;

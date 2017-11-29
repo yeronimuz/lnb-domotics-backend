@@ -1,4 +1,4 @@
-package com.lankheet.domotics.resources;
+package com.lankheet.backend.resources;
 
 import java.util.List;
 import javax.ws.rs.GET;
