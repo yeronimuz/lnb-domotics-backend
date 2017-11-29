@@ -1,0 +1,71 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'gradle-one-jar'
+apply plugin: 'maven-publish'
+apply plugin: 'jacoco'
+
+version '0.1-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.lankheet.iot'
+            artifactId 'lnb-webservice'
+            version version
+
+            from components.java
+        }
+    }
+}
+
+task bigJar(type: OneJar) {
+    mainClass = 'com.lankheet.iot.IOTApplication'
+    manifest {
+        attributes 'Implementation-Title': 'IOT-Webservice',
+                   'Implementation-Version': version,
+                   'Main-Class': mainClass
+    }
+}
+
+dependencies {
+    compile 'com.lankheet.iot:lnb-domotics-datatypes:0.2+'
+    compile 'org.apache.logging.log4j:log4j-core:2.4'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.1'
+    compile 'io.dropwizard:dropwizard-core:1.0.6'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+    
+    testCompile 'info.cukes:cucumber-java:1.2.4'
+    testCompile 'info.cukes:cucumber-junit:1.2.4'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
+    testCompile 'org.jmockit:jmockit:1.34'  
+}
