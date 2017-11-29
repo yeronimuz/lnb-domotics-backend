@@ -5,6 +5,10 @@ import org.apache.logging.log4j.Logger;
 import com.lankheet.domotics.config.BackendServiceConfig;
 import com.lankheet.domotics.health.DatabaseHealthCheck;
 import com.lankheet.domotics.health.MqttConnectionHealthCheck;
+import com.lankheet.domotics.resources.BackendInfoResource;
+import com.lankheet.domotics.resources.BackendServiceInfo;
+import com.lankheet.domotics.resources.MeasurementsResource;
+import com.lankheet.utils.TcpPortUtil;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -19,7 +23,11 @@ import io.dropwizard.setup.Environment;
 public class BackendService extends Application<BackendServiceConfig> {
 	private static final Logger LOG = LogManager.getLogger(BackendService.class);
 	
-	private BackendServiceConfig configuration;
+    private static final int TIMEOUT_FOR_PORTSCAN = 200;
+    private static final int DEFAULT_MQTT_PORT = 1883;
+    private static final String DEFAULT_MQTT_HOST = "localhost";
+
+    private BackendServiceConfig configuration;
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 2) {
@@ -37,15 +45,24 @@ public class BackendService extends Application<BackendServiceConfig> {
 	@Override
 	public void run(BackendServiceConfig configuration, Environment environment) throws Exception {
 	    this.setConfiguration(configuration);
-		DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
-		MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
+        if (!TcpPortUtil.isPortOpen(DEFAULT_MQTT_HOST, DEFAULT_MQTT_PORT, TIMEOUT_FOR_PORTSCAN)) {
+            LOG.fatal("Mqtt port not accessible");
+            System.exit(-1);
+        } else {
+            LOG.info("MQTT port available");
+        }
+        DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
+        MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
+        BackendInfoResource webServiceInfoResource = new BackendInfoResource(new BackendServiceInfo());
+        MeasurementsResource measurementsResource = new MeasurementsResource(dbManager);
+        environment.getApplicationContext().setContextPath("/api");
+        environment.lifecycle().manage(mqttClientManager);
+        environment.lifecycle().manage(dbManager);
+        environment.jersey().register(webServiceInfoResource);
+        environment.jersey().register(measurementsResource);
 
-		environment.getApplicationContext().setContextPath("/api");
-		environment.lifecycle().manage(mqttClientManager);
-		environment.lifecycle().manage(dbManager);
-		// environment.jersey().register(measurementsResource);
-		environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager.getEntityManagerFactory()));
-		environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
+        environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager));
+        environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
 	}
 
     public BackendServiceConfig getConfiguration() {
