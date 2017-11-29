@@ -1,4 +1,4 @@
-package com.lankheet.domotics.backend;
+package com.lankheet.domotics.backend.dao;
 
 import java.util.List;
 import com.lankheet.iot.datatypes.Measurement;

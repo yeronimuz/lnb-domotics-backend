@@ -22,10 +22,6 @@ import io.dropwizard.setup.Environment;
  */
 public class BackendService extends Application<BackendServiceConfig> {
 	private static final Logger LOG = LogManager.getLogger(BackendService.class);
-	
-    private static final int TIMEOUT_FOR_PORTSCAN = 200;
-    private static final int DEFAULT_MQTT_PORT = 1883;
-    private static final String DEFAULT_MQTT_HOST = "localhost";
 
     private BackendServiceConfig configuration;
 
@@ -45,12 +41,6 @@ public class BackendService extends Application<BackendServiceConfig> {
 	@Override
 	public void run(BackendServiceConfig configuration, Environment environment) throws Exception {
 	    this.setConfiguration(configuration);
-        if (!TcpPortUtil.isPortOpen(DEFAULT_MQTT_HOST, DEFAULT_MQTT_PORT, TIMEOUT_FOR_PORTSCAN)) {
-            LOG.fatal("Mqtt port not accessible");
-            System.exit(-1);
-        } else {
-            LOG.info("MQTT port available");
-        }
         DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
         MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
         BackendInfoResource webServiceInfoResource = new BackendInfoResource(new BackendServiceInfo());

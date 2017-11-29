@@ -35,8 +35,8 @@ buildscript {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.lankheet.iot'
-            artifactId 'lnb-webservice'
+            groupId 'com.lankheet.domotics'
+            artifactId 'lnb-domotics-backend'
             version version
 
             from components.java
@@ -45,9 +45,9 @@ publishing {
 }
 
 task bigJar(type: OneJar) {
-    mainClass = 'com.lankheet.iot.IOTApplication'
+    mainClass = 'com.lankheet.domotics.backend.BackendService'
     manifest {
-        attributes 'Implementation-Title': 'IOT-Webservice',
+        attributes 'Implementation-Title': 'LNB Domotics-Webservice',
                    'Implementation-Version': version,
                    'Main-Class': mainClass
     }

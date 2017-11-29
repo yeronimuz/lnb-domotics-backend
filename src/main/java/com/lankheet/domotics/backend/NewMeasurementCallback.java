@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.lankheet.domotics.backend.dao.DaoListener;
 import com.lankheet.domotics.utils.JsonUtil;
 import com.lankheet.iot.datatypes.Measurement;
 
@@ -40,6 +41,7 @@ public class NewMeasurementCallback implements MqttCallback {
             newMmeasurement = JsonUtil.measurementFromJson(payload);
         } catch(JsonProcessingException e ) {
             LOG.error(e.getMessage());
+            return;
         }
         LOG.info("Starting store action");
         daoListener.newMeasurement(newMmeasurement);

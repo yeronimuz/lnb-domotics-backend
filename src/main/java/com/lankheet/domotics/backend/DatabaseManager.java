@@ -10,6 +10,7 @@ import javax.persistence.Persistence;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import com.lankheet.domotics.backend.config.DatabaseConfig;
+import com.lankheet.domotics.backend.dao.DaoListener;
 import com.lankheet.iot.datatypes.Measurement;
 import io.dropwizard.lifecycle.Managed;
 
