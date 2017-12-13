@@ -1,18 +1,18 @@
 package com.lankheet.domotics.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lankheet.domotics.backend.dao.DaoListener;
 import com.lankheet.domotics.utils.JsonUtil;
 import com.lankheet.iot.datatypes.Measurement;
 
 public class NewMeasurementCallback implements MqttCallback {
-    private static final Logger LOG = LogManager.getLogger(NewMeasurementCallback.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewMeasurementCallback.class);
     private MqttClientManager mqttClientManager;
     private DaoListener daoListener;
 
@@ -27,7 +27,7 @@ public class NewMeasurementCallback implements MqttCallback {
         try {
             mqttClientManager.getClient().reconnect();
         } catch (MqttException e) {
-            LOG.fatal("Could not reconnect: {}", e.getMessage());
+            LOG.error("Could not reconnect: {}", e.getMessage());
         }
     }
 
