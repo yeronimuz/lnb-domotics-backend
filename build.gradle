@@ -47,7 +47,7 @@ publishing {
 task bigJar(type: OneJar) {
     mainClass = 'com.lankheet.domotics.backend.BackendService'
     manifest {
-        attributes 'Implementation-Title': 'LNB Domotics-Webservice',
+        attributes 'Implementation-Title': 'LNB Domotics-Backend',
                    'Implementation-Version': version,
                    'Main-Class': mainClass
     }
