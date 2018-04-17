@@ -11,9 +11,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.lankheet.domotics.backend.BackendService;
 import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.domotics.testutils.TestUtils;
 import com.lankheet.iot.datatypes.Measurement;
@@ -57,7 +57,7 @@ public class BackendServiceTest {
         mqttClient = TestUtils.createMqttClientConnection();
     }
 
-    @Test
+    // @Test (disabled; it's a system test, not a unit test)
     public void testEndToEndTest() throws Exception {
         Measurement measurement = new Measurement(1, new Date(), MeasurementType.ACTUAL_CONSUMED_POWER.getId(), 1.1);
         TestUtils.sendMqttMeasurement(mqttClient, measurement);

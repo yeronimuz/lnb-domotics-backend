@@ -6,6 +6,15 @@ apply plugin: 'jacoco'
 
 version '0.1'
 
+ext {
+    dropwizardVersion = '1.3.0'
+    junitVersion = '4.+'
+    slf4jVersion = '1.7.25'
+    jmockitVersion = '1.35'
+    jacksonVersion = '2.8.1'
+    hibernateVersion = '5.2.10.Final'
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -55,17 +64,16 @@ task bigJar(type: OneJar) {
 
 dependencies {
     compile 'com.lankheet.iot:lnb-domotics-datatypes:0.2+'
-    compile 'org.apache.logging.log4j:log4j-core:2.4'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
-    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.1'
-    compile 'io.dropwizard:dropwizard-core:1.0.6'
+    compile group: 'com.fasterxml.jackson.core', name:'jackson-core', version: jacksonVersion
+    compile group: 'com.fasterxml.jackson.core', name:'jackson-databind', version: jacksonVersion
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: jacksonVersion
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version: dropwizardVersion
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
     
     testCompile 'info.cukes:cucumber-java:1.2.4'
     testCompile 'info.cukes:cucumber-junit:1.2.4'
-    testCompile 'junit:junit:4.12'
+    testCompile group: 'junit', name: 'junit', version: junitVersion
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile 'org.jmockit:jmockit:1.34'  
+    testCompile group: 'org.jmockit', name: 'jmockit', version: jmockitVersion  
 }

@@ -8,10 +8,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.lankheet.domotics.backend.config.BackendServiceConfig;
-import com.lankheet.domotics.backend.config.DatabaseConfig;
-import com.lankheet.domotics.backend.config.MqttConfig;
-import cucumber.api.java.After;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 
@@ -21,11 +17,11 @@ import io.dropwizard.setup.Environment;
  */
 public class BackendServiceConfigTest {
     // Prepare the SUT
-    private static class WebServiceConfigTester extends Application<BackendServiceConfig> {
-        private static WebServiceConfigTester instance = null;
+    private static class BackendServiceConfigTester extends Application<BackendServiceConfig> {
+        private static BackendServiceConfigTester instance = null;
         private BackendServiceConfig wsConfig;
 
-        private WebServiceConfigTester() {
+        private BackendServiceConfigTester() {
             // Do not allow instantiation through constructor
         }
 
@@ -34,27 +30,22 @@ public class BackendServiceConfigTest {
             this.wsConfig = configuration;
         }
 
-        public static WebServiceConfigTester getInstance() {
+        public static BackendServiceConfigTester getInstance() {
             if (instance == null) {
-                instance = new WebServiceConfigTester();
+                instance = new BackendServiceConfigTester();
             }
             return instance;
         }
-
     }
 
     @BeforeClass
     public static void setup() throws Exception {
-        WebServiceConfigTester.getInstance().run("server", "src/test/resources/application.yml");
-    }
-
-    @After
-    public void tearDown() {
+        BackendServiceConfigTester.getInstance().run("server", "src/test/resources/application.yml");
     }
 
     @Test
     public void testConfigDatabase() throws Exception {
-        WebServiceConfigTester wsTester = WebServiceConfigTester.getInstance();
+        BackendServiceConfigTester wsTester = BackendServiceConfigTester.getInstance();
         DatabaseConfig databaseConfig = wsTester.wsConfig.getDatabaseConfig();
         assertThat(databaseConfig, is(notNullValue()));
         assertThat(databaseConfig.getDriver(), is("com.mysql.jdbc.Driver"));
@@ -65,12 +56,12 @@ public class BackendServiceConfigTest {
 
     @Test
     public void testConfigMqtt() {
-        WebServiceConfigTester wsTester = WebServiceConfigTester.getInstance();
-        
+        BackendServiceConfigTester wsTester = BackendServiceConfigTester.getInstance();
+
         MqttConfig mqttConfig = wsTester.wsConfig.getMqttConfig();
         assertThat(mqttConfig, is(notNullValue()));
         assertThat(mqttConfig.getUrl(), is("tcp://localhost:1883"));
         assertThat(mqttConfig.getUserName(), is("johndoe"));
-        assertThat(mqttConfig.getPassword(), is ("secret"));
-    }    
+        assertThat(mqttConfig.getPassword(), is("secret"));
+    }
 }
