@@ -1,13 +1,14 @@
-package com.lankheet.domotics;
+package com.lankheet.domotics.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import com.lankheet.domotics.config.MqttConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.lankheet.domotics.backend.config.MqttConfig;
+import com.lankheet.domotics.backend.dao.DaoListener;
 import io.dropwizard.lifecycle.Managed;
 
 /**
@@ -15,7 +16,7 @@ import io.dropwizard.lifecycle.Managed;
  *
  */
 public class MqttClientManager implements Managed {
-    private static final Logger LOG = LogManager.getLogger(MqttClientManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MqttClientManager.class);
 
     private MqttClient client;
     private final MqttConnectOptions options = new MqttConnectOptions();;
@@ -26,7 +27,6 @@ public class MqttClientManager implements Managed {
         client = new MqttClient(mqttConfig.getUrl(), MqttClient.generateClientId());
 
         client.setCallback(new NewMeasurementCallback(this, dao));
-        MqttConnectOptions options = new MqttConnectOptions();
         options.setConnectionTimeout(60);
         options.setKeepAliveInterval(60);
         options.setUserName(userName);
@@ -51,7 +51,7 @@ public class MqttClientManager implements Managed {
     public void start() throws Exception {
         LOG.info("Connecting mqtt broker with options: {}", options);;
         client.connect(options);
-        client.subscribe("test", 0);
+        client.subscribe("#", 0);
     }
 
     @Override

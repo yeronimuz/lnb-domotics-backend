@@ -1,4 +1,4 @@
-package com.lankheet.domotics.config;
+package com.lankheet.domotics.backend.config;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;

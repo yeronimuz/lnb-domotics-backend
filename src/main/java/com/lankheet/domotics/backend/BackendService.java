@@ -1,14 +1,34 @@
-package com.lankheet.domotics;
+/**
+ * MIT License
+ * 
+ * Copyright (c) 2017 Lankheet Software and System Solutions
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import com.lankheet.backend.resources.BackendInfoResource;
-import com.lankheet.backend.resources.BackendServiceInfo;
-import com.lankheet.backend.resources.MeasurementsResource;
-import com.lankheet.domotics.config.BackendServiceConfig;
-import com.lankheet.domotics.health.DatabaseHealthCheck;
-import com.lankheet.domotics.health.MqttConnectionHealthCheck;
-import com.lankheet.utils.TcpPortUtil;
+package com.lankheet.domotics.backend;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.lankheet.domotics.backend.config.BackendServiceConfig;
+import com.lankheet.domotics.backend.health.DatabaseHealthCheck;
+import com.lankheet.domotics.backend.health.MqttConnectionHealthCheck;
+import com.lankheet.domotics.backend.resources.BackendInfoResource;
+import com.lankheet.domotics.backend.resources.BackendServiceInfo;
+import com.lankheet.domotics.backend.resources.MeasurementsResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -21,11 +41,7 @@ import io.dropwizard.setup.Environment;
  *
  */
 public class BackendService extends Application<BackendServiceConfig> {
-	private static final Logger LOG = LogManager.getLogger(BackendService.class);
-	
-    private static final int TIMEOUT_FOR_PORTSCAN = 200;
-    private static final int DEFAULT_MQTT_PORT = 1883;
-    private static final String DEFAULT_MQTT_HOST = "localhost";
+	private static final Logger LOG = LoggerFactory.getLogger(BackendService.class);
 
     private BackendServiceConfig configuration;
 
@@ -45,12 +61,6 @@ public class BackendService extends Application<BackendServiceConfig> {
 	@Override
 	public void run(BackendServiceConfig configuration, Environment environment) throws Exception {
 	    this.setConfiguration(configuration);
-        if (!TcpPortUtil.isPortOpen(DEFAULT_MQTT_HOST, DEFAULT_MQTT_PORT, TIMEOUT_FOR_PORTSCAN)) {
-            LOG.fatal("Mqtt port not accessible");
-            System.exit(-1);
-        } else {
-            LOG.info("MQTT port available");
-        }
         DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
         MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
         BackendInfoResource webServiceInfoResource = new BackendInfoResource(new BackendServiceInfo());

@@ -1,4 +1,4 @@
-package com.lankheet.domotics.config;
+package com.lankheet.domotics.backend.config;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

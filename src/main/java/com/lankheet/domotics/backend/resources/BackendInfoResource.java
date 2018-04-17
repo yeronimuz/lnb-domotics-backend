@@ -1,4 +1,4 @@
-package com.lankheet.backend.resources;
+package com.lankheet.domotics.backend.resources;
 
 import java.io.IOException;
 import javax.ws.rs.GET;
@@ -10,10 +10,10 @@ import com.codahale.metrics.annotation.Timed;
 @Path("/info")
 @Produces(MediaType.APPLICATION_JSON)
 public class BackendInfoResource {
-    private BackendServiceInfo webServiceInfo;
+    private BackendServiceInfo backEndServiceInfo;
 
-    public BackendInfoResource(BackendServiceInfo webServiceInfo) {
-        this.webServiceInfo = webServiceInfo;
+    public BackendInfoResource(BackendServiceInfo backEndServiceInfo) {
+        this.backEndServiceInfo = backEndServiceInfo;
     }
 
     /**
@@ -25,6 +25,6 @@ public class BackendInfoResource {
     @GET
     @Timed
     public BackendServiceInfo webServiceInfo() throws IOException {
-        return webServiceInfo;
+        return backEndServiceInfo;
     }
 }
