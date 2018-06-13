@@ -8,8 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lankheet.domotics.backend.dao.DaoListener;
-import com.lankheet.domotics.utils.JsonUtil;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.domotics.SensorValue;
+import com.lankheet.iot.datatypes.entities.Measurement;
+import com.lankheet.utils.JsonUtil;
 
 public class NewMeasurementCallback implements MqttCallback {
     private static final Logger LOG = LoggerFactory.getLogger(NewMeasurementCallback.class);
@@ -36,15 +37,16 @@ public class NewMeasurementCallback implements MqttCallback {
         LOG.info("Topic: {}, message: {}", topic, message.toString());
         String payload = new String(message.getPayload());
         LOG.info("Payload: {}", payload);
+        SensorValue sensorValue = null;
         Measurement newMmeasurement = null;
         try {
-            newMmeasurement = JsonUtil.measurementFromJson(payload);
+            sensorValue = JsonUtil.fromJson(payload);
         } catch(JsonProcessingException e ) {
             LOG.error(e.getMessage());
             return;
         }
         LOG.info("Starting store action");
-        daoListener.newMeasurement(newMmeasurement);
+        daoListener.saveNewMeasurement(newMmeasurement);
     }
 
     @Override

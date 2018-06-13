@@ -26,15 +26,18 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.domotics.backend.dao.DaoListener;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.Measurement;
 import io.dropwizard.lifecycle.Managed;
 
+/**
+ * The database manager saves the received measurements in the data store
+ *
+ */
 public class DatabaseManager implements Managed, DaoListener {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseManager.class);
 
@@ -66,40 +69,19 @@ public class DatabaseManager implements Managed, DaoListener {
     }
 
     @Override
-    public void newMeasurement(Measurement measurement) {
-        if (!isRepeatedMeasurement(measurement)) {
-            LOG.info("Storing: " + measurement);
-            em.getTransaction().begin();
-            em.persist(measurement);
-            em.getTransaction().commit();
-        } else {
-            LOG.info("Ignoring repeated measurement: " + measurement);
-        }
-    }
-
-    private boolean isRepeatedMeasurement(Measurement measurement) {
-        boolean returnValue = false;
-        int sensorId = measurement.getSensorId();
-        int type = measurement.getType();
-        double value = measurement.getValue();
-        Measurement measLast = null;
-        try {
-            measLast =
-                    (Measurement) em
-                            .createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId
-                                    + " AND e.type = " + type + " order by e.id desc")
-                            .setMaxResults(1).getSingleResult();
-            returnValue = (value == measLast.getValue());
-        } catch (NoResultException ex) {
-            returnValue = false;
-        }
-        return returnValue;
+    public void saveNewMeasurement(Measurement measurement) {
+        LOG.info("Storing: " + measurement);
+        em.getTransaction().begin();
+        em.persist(measurement);
+        em.getTransaction().commit();
     }
 
     @Override
     public List<Measurement> getMeasurementsBySensor(int sensorId) {
+        List<Measurement> returnList = null;
         String query = "SELECT e FROM measurements e WHERE e.sensorId = " + sensorId + " ORDER BY e.id ASC";
-        return em.createQuery(query).setMaxResults(6 * 60 * 60 * 24).getResultList();
+        returnList = em.createQuery(query).setMaxResults(6 * 60 * 60 * 24).getResultList();
+        return returnList;
     }
 
     @Override

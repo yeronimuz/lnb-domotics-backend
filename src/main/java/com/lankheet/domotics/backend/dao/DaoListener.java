@@ -1,7 +1,7 @@
 package com.lankheet.domotics.backend.dao;
 
 import java.util.List;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.Measurement;
 
 public interface DaoListener {
 	
@@ -10,7 +10,7 @@ public interface DaoListener {
      * 
      * @param measurement The measurement that has arrived.
      */
-    void newMeasurement(Measurement measurement);
+    void saveNewMeasurement(Measurement measurement);
 
     /**
      * A client requests all measurements by sensor from the database
@@ -21,6 +21,12 @@ public interface DaoListener {
      */
     List<Measurement> getMeasurementsBySensor(int sensorId);
     
+    /**
+     * Request all measurements of a specific type for a specific sensor.
+     * @param sensorId The originated sensor
+     * @param type The message type
+     * @return The measurements that comply to the input criteria
+     */
     List<Measurement> getMeasurementsBySensorAndType(int sensorId, int type);
 
 }

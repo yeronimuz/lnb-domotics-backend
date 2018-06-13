@@ -8,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.lankheet.domotics.backend.DatabaseManager;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.Measurement;
 
 @Path("/measurements")
 @Produces(MediaType.APPLICATION_JSON)

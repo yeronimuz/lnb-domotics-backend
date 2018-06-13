@@ -3,7 +3,7 @@ package com.lankheet.domotics.backend.health;
 import java.util.List;
 import com.codahale.metrics.health.HealthCheck;
 import com.lankheet.domotics.backend.DatabaseManager;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.Measurement;
 
 public class DatabaseHealthCheck extends HealthCheck {
     private DatabaseManager dbManager;

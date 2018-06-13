@@ -17,9 +17,9 @@ public class BackendInfoResource {
     }
 
     /**
-     * Returns application and version info of the WebService.
+     * Returns application and version info of the BackEnd service.
      * 
-     * @return WebService info; version and description
+     * @return BackendService info; version and description
      * @throws IOException Manifest of this JAR could not be read
      */
     @GET
