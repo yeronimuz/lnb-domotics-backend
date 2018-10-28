@@ -11,7 +11,7 @@ databaseConfig:
   driver: com.mysql.jdbc.Driver
   url: jdbc:mysql://localhost:3306/domotics
   userName: testuser
-  password: testpassword
+  password: p@ssW0rd
 
 server:
 #  softNofileLimit: 1000

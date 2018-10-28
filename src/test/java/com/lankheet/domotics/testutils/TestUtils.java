@@ -8,8 +8,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.lankheet.domotics.utils.JsonUtil;
-import com.lankheet.iot.datatypes.Measurement;
+import com.lankheet.iot.datatypes.entities.Measurement;
+import com.lankheet.utils.JsonUtil;
 
 public class TestUtils {
     private static final Logger LOG = LoggerFactory.getLogger(TestUtils.class);
