@@ -7,10 +7,15 @@
             Persistence unit for the measurements storage
         </description>
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>com.lankheet.iot.datatypes.Measurement</class>
-        <class>com.lankheet.iot.datatypes.MeasurementType</class>
-        <class>com.lankheet.iot.datatypes.Sensor</class>
-        <class>com.lankheet.iot.datatypes.SensorType</class>
+        
+        <class>com.lankheet.iot.datatypes.entities.Measurement</class>
+        <class>com.lankheet.iot.datatypes.entities.MeasurementType</class>
+        <class>com.lankheet.iot.datatypes.entities.Sensor</class>
+        <class>com.lankheet.iot.datatypes.entities.SensorType</class>
+        <class>com.lankheet.iot.datatypes.entities.DomoticsUser</class>
+        <class>com.lankheet.iot.datatypes.entities.Location</class>
+        <class>com.lankheet.iot.datatypes.entities.Actuator</class>
+        <class>com.lankheet.iot.datatypes.entities.DomoticsRole</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
@@ -20,7 +25,7 @@
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
             <property name="hibernate.show_sql" value="true" />
-            <property name="hibernate.hbm2ddl.auto" value="create" />
+            <property name="hibernate.hbm2ddl.auto" value="update" />
         </properties>
 
  	</persistence-unit>

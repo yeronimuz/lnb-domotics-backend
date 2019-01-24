@@ -1,15 +1,21 @@
+plugins {
+  id "com.github.johnrengelman.shadow" version "4.0.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'gradle-one-jar'
+apply plugin: 'application'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
 version '0.1'
 
 ext {
-    dropwizardVersion = '1.3.1'
-    dataTypesVersion = '0.4-SNAPSHOT'
+    baseName = 'lnb-domotics-backend'
+    classifier = 'RC'
     
+    dropwizardVersion = '1.3.1'
+    dataTypesVersion = '0.5-SNAPSHOT'
     junitVersion = '4.+'
     slf4jVersion = '1.7.25'
     jmockitVersion = '1.35'
@@ -20,6 +26,14 @@ ext {
 repositories {
     mavenLocal()
     mavenCentral()
+}
+
+shadowJar {
+    mergeServiceFiles()
+    mainClassName = 'com.lankheet.domotics.backend.BackendService'
+    baseName = project.ext.baseName
+    classifier = project.ext.classifier
+    version =  version
 }
 
 eclipse {
@@ -34,15 +48,6 @@ jacoco {
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
-    }
-}
-
 publishing {
     publications {
         maven(MavenPublication) {
@@ -52,15 +57,6 @@ publishing {
 
             from components.java
         }
-    }
-}
-
-task bigJar(type: OneJar) {
-    mainClass = 'com.lankheet.domotics.backend.BackendService'
-    manifest {
-        attributes 'Implementation-Title': 'LNB Domotics-Backend',
-                   'Implementation-Version': version,
-                   'Main-Class': mainClass
     }
 }
 

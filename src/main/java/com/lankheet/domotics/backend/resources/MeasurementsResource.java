@@ -8,21 +8,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.codahale.metrics.annotation.Timed;
 import com.lankheet.domotics.backend.DatabaseManager;
+import com.lankheet.domotics.backend.dao.DaoListener;
 import com.lankheet.iot.datatypes.entities.Measurement;
 
 @Path("/measurements")
 @Produces(MediaType.APPLICATION_JSON)
 public class MeasurementsResource {
 
-    private DatabaseManager dbManager;
+    private DaoListener dao;
     
-    public MeasurementsResource(DatabaseManager dbManager) {
-        this.dbManager = dbManager;
+    public MeasurementsResource(DaoListener dao) {
+        this.dao = dao;
     }
     
     @GET
     @Timed
+    @Path("{sensorId}")
     public List<Measurement> getMeasurements(@PathParam("sensorId") int sensorId) {
-        return dbManager.getMeasurementsBySensor(sensorId);
+        return dao.getMeasurementsBySensor(sensorId);
     }
 }

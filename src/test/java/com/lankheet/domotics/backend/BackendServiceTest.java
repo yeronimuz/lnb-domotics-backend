@@ -11,18 +11,23 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.domotics.testutils.TestUtils;
+import com.lankheet.iot.datatypes.domotics.SensorNode;
+import com.lankheet.iot.datatypes.domotics.SensorValue;
 import com.lankheet.iot.datatypes.entities.Measurement;
 import com.lankheet.iot.datatypes.entities.MeasurementType;
 import com.lankheet.iot.datatypes.entities.Sensor;
 import com.lankheet.iot.datatypes.entities.SensorType;
-import cucumber.api.java.lu.a;
 
 /**
- * Test for @link {@link BackendService} A database is required An mqtt server is required
+ * End-to-end SystemTest for @link {@link BackendService}<BR>
+ * <li>A database is required 
+ * <li>An mqtt server is required
  */
 public class BackendServiceTest {
     private static final String PERSISTENCE_UNIT = "meas-pu";
@@ -56,13 +61,23 @@ public class BackendServiceTest {
         mqttClient = TestUtils.createMqttClientConnection();
     }
 
-    // @Test
+    @Test
     public void testEndToEndTest() throws Exception {
-        Measurement measurement =
-                new Measurement(sensor1, new Date(), MeasurementType.ACTUAL_CONSUMED_POWER, 1.1);
-        TestUtils.sendMqttMeasurement(mqttClient, measurement);
+        SensorNode sensorNode = new SensorNode("AA:BB:CC:DD", SensorType.POWER_METER.getId());
+        SensorValue sensorValue =
+                new SensorValue(sensorNode, new Date(), MeasurementType.ACTUAL_CONSUMED_POWER.getId(), 1.1);
+
+        TestUtils.sendMqttSensorValue(mqttClient, sensorValue);
         assertTrue(mqttClient.isConnected());
         // Give the service some time to finish
         Thread.sleep(2000);
+    }
+
+    @AfterClass
+    public static void doCLeanup() throws MqttException {
+        mqttClient.disconnect();
+        mqttClient.close();
+        em.close();
+        emf.close();
     }
 }

@@ -27,11 +27,13 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lankheet.domotics.backend.config.DatabaseConfig;
 import com.lankheet.domotics.backend.dao.DaoListener;
 import com.lankheet.iot.datatypes.entities.Measurement;
+import com.lankheet.iot.datatypes.entities.Sensor;
 import io.dropwizard.lifecycle.Managed;
 
 /**
@@ -42,6 +44,8 @@ public class DatabaseManager implements Managed, DaoListener {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseManager.class);
 
     private static final String PERSISTENCE_UNIT = "meas-pu";
+
+    private static final int MEASUREMENTS_PER_24HOUR = 6 * 60 * 60 * 24;
     private DatabaseConfig dbConfig;
     private EntityManagerFactory emf;
     private EntityManager em;
@@ -70,23 +74,39 @@ public class DatabaseManager implements Managed, DaoListener {
 
     @Override
     public void saveNewMeasurement(Measurement measurement) {
+        List<Sensor> sensorList;
+        Sensor sensor = measurement.getSensor();
+        String query = "SELECT s FROM sensors s WHERE s.macAddress = :mac AND s.sensorType = :type";
+        sensorList = em.createQuery(query)
+                .setParameter("mac", sensor.getMacAddress())
+                .setParameter("type", sensor.getType())
+                .getResultList();
+        LOG.debug("Sensors in db: {}", sensorList.size());
         LOG.info("Storing: " + measurement);
         em.getTransaction().begin();
+        if (!sensorList.isEmpty()) {
+            sensor = sensorList.get(0);
+            measurement.setSensor(sensor);
+        } else {
+            em.persist(sensor);
+        }
+
+        // TODO: Set reference when sensor already exists;
         em.persist(measurement);
         em.getTransaction().commit();
     }
 
     @Override
     public List<Measurement> getMeasurementsBySensor(int sensorId) {
-        List<Measurement> returnList = null;
-        String query = "SELECT e FROM measurements e WHERE e.sensorId = " + sensorId + " ORDER BY e.id ASC";
-        returnList = em.createQuery(query).setMaxResults(6 * 60 * 60 * 24).getResultList();
-        return returnList;
+        List<Measurement> measurementsList = null;
+        String query = "SELECT e, e.sensor.id FROM measurements e WHERE e.sensor.id = " + sensorId + " ORDER BY e.id ASC";
+        measurementsList = em.createQuery(query).setMaxResults(MEASUREMENTS_PER_24HOUR).getResultList();
+        return measurementsList;
     }
 
     @Override
     public List<Measurement> getMeasurementsBySensorAndType(int sensorId, int type) {
-        return em.createQuery("SELECT e FROM measurements e WHERE e.sensorId = " + sensorId + " AND e.type = " + type)
+        return em.createQuery("SELECT e FROM measurements e WHERE e.id = " + sensorId + " AND e.type = " + type)
                 .getResultList();
     }
 }

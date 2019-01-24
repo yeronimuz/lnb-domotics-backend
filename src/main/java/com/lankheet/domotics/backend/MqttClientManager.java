@@ -5,6 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lankheet.domotics.backend.config.MqttConfig;
@@ -12,11 +13,13 @@ import com.lankheet.domotics.backend.dao.DaoListener;
 import io.dropwizard.lifecycle.Managed;
 
 /**
- * MQTT client manager that subscribes to the domotics topics.
- *
+ * MQTT client manager that subscribes to the domotics topics. This managed service is started
+ * before the Jetty service is and stopped after the Jetty service is stopped.
  */
 public class MqttClientManager implements Managed {
     private static final Logger LOG = LoggerFactory.getLogger(MqttClientManager.class);
+
+    private static final int MQTT_CONNECT_RETRY_TIMEOUT = 500;
 
     private MqttClient client;
     private final MqttConnectOptions options = new MqttConnectOptions();;
@@ -26,7 +29,7 @@ public class MqttClientManager implements Managed {
         String password = mqttConfig.getPassword();
         client = new MqttClient(mqttConfig.getUrl(), MqttClient.generateClientId());
 
-        client.setCallback(new NewMeasurementCallback(this, dao));
+        client.setCallback(new BackendMqttCallback(this, dao));
         options.setConnectionTimeout(60);
         options.setKeepAliveInterval(60);
         options.setUserName(userName);
@@ -48,16 +51,32 @@ public class MqttClientManager implements Managed {
     }
 
     @Override
-    public void start() throws Exception {
-        LOG.info("Connecting mqtt broker with options: {}", options);;
-        client.connect(options);
+    public void start() throws MqttException, MqttSecurityException {
+        LOG.info("Connecting mqtt broker with options: {}", options);
+ 
+        do {
+            try {
+                client.connect(options);
+            } catch(MqttException | SecurityException ex) {
+                LOG.error("Unable to connect to Mqtt broker!");
+                try {
+                    Thread.sleep(MQTT_CONNECT_RETRY_TIMEOUT);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } while (!client.isConnected());
+        LOG.info("Mqtt client connected: " + client.getClientId());
         client.subscribe("#", 0);
     }
 
     @Override
     public void stop() throws Exception {
-        LOG.info("Closing mqtt connection...");
-        client.disconnect();
+        if (client.isConnected()) {
+            LOG.info("Closing mqtt connection...");
+            client.disconnect();
+        }
     }
 
     public MqttClient getClient() {
