@@ -1,20 +1,15 @@
 package com.lankheet.domotics.backend.config;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MqttConfig {
 	
-	@NotEmpty
 	private String url;
 	
-	@NotEmpty
 	private String userName;
 	
-	@NotEmpty
 	private String password;
-	
-	@NotEmpty
+
 	private String caFilePath;
 	
 	private String crtFilePath;
