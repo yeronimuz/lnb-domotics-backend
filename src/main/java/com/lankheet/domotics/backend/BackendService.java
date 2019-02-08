@@ -21,65 +21,80 @@
 
 package com.lankheet.domotics.backend;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.lankheet.domotics.backend.config.BackendServiceConfig;
-import com.lankheet.domotics.backend.health.DatabaseHealthCheck;
-import com.lankheet.domotics.backend.health.MqttConnectionHealthCheck;
-import com.lankheet.domotics.backend.resources.BackendInfoResource;
-import com.lankheet.domotics.backend.resources.BackendServiceInfo;
-import com.lankheet.domotics.backend.resources.MeasurementsResource;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import com.lankheet.iot.datatypes.entities.Measurement;
 
 /**
  * The web service has the following tasks:<BR>
  * <li>It accepts measurements from the message broker
  * <li>It saves the measurements in the database
- * <li>It serves as a resource for the measurements database
  *
  */
-public class BackendService extends Application<BackendServiceConfig> {
-	private static final Logger LOG = LoggerFactory.getLogger(BackendService.class);
-
-    private BackendServiceConfig configuration;
-
+public class BackendService {
+	private static final Logger LOG = LogManager.getLogger(BackendService.class);
+	
 	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
-			LOG.error("Missing or wrong arguments");
+		showBanner();
+		InputStream is = BackendService.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
+		Manifest manifest = new Manifest(is);
+		Attributes mainAttrs = manifest.getMainAttributes();
+		String title = mainAttrs.getValue("Implementation-Title");
+		String version = mainAttrs.getValue("Implementation-Version");
+		String classifier = mainAttrs.getValue("Implementation-Classifier");
+		if (args.length != 1) {
+			LOG.error("Wrong arguments");
+			showUsage(version, classifier);
+			return;
 		} else {
-			new BackendService().run(args[0], args[1]);
+			new BackendService().run(args[0]);
 		}
 	}
 
-	@Override
-	public void initialize(Bootstrap<BackendServiceConfig> bootstrap) {
-		LOG.info("Lankheet LNB IOT web service", "");
+	private static void showBanner() throws URISyntaxException, IOException {
+		String text = new Scanner(BackendService.class.getResourceAsStream("/banner.txt"), "UTF-8").useDelimiter("\\A")
+				.next();
+		System.out.println(text);
 	}
 
-	@Override
-	public void run(BackendServiceConfig configuration, Environment environment) throws Exception {
-	    this.setConfiguration(configuration);
-        DatabaseManager dbManager = new DatabaseManager(configuration.getDatabaseConfig());
-        MqttClientManager mqttClientManager = new MqttClientManager(configuration.getMqttConfig(), dbManager);
-        BackendInfoResource webServiceInfoResource = new BackendInfoResource(new BackendServiceInfo());
-        MeasurementsResource measurementsResource = new MeasurementsResource(dbManager);
-        environment.getApplicationContext().setContextPath("/api");
-        environment.lifecycle().manage(mqttClientManager);
-        environment.lifecycle().manage(dbManager);
-        environment.jersey().register(webServiceInfoResource);
-        environment.jersey().register(measurementsResource);
-
-        environment.healthChecks().register("database", new DatabaseHealthCheck(dbManager));
-        environment.healthChecks().register("mqtt-server", new MqttConnectionHealthCheck(mqttClientManager));
+	private static void showUsage(String version, String classifier) {
+		System.out.println("Missing configuration file!");
+		System.out.println("Usage:");
+		System.out.println("java -jar lnb-powermeter-" + version + "-" + classifier + " config.yml");
+		;
 	}
 
-    public BackendServiceConfig getConfiguration() {
-        return configuration;
-    }
+	public void run(String configurationFile) throws Exception {
+		BackendServiceConfig config = BackendServiceConfig.loadConfigurationFromFile(configurationFile);
+		BlockingQueue<Measurement> queue = new ArrayBlockingQueue<>(config.getInternalQueueSize());
 
-    public void setConfiguration(BackendServiceConfig configuration) {
-        this.configuration = configuration;
-    }
+		DatabaseAgent dbManager = new DatabaseAgent(config.getDatabaseConfig(), queue);
+		MqttReader mqttReader = new MqttReader(config.getMqttConfig(), queue);
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				LOG.warn("Shutdown Hook is running !");
+				// TODO: gracefully shutdown threads
+				if (mqttReader.isRunning()) {
+					mqttReader.setRunFlag(false);
+				}
+				if (dbManager.isRunning()) {
+					dbManager.setRunFlag(false);
+				}
+			}
+		});
+
+		new Thread(dbManager).start();
+		new Thread(mqttReader).start();
+	}
 }

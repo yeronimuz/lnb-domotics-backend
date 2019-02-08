@@ -1,5 +1,9 @@
 package com.lankheet.domotics.backend;
 
+import java.util.concurrent.BlockingQueue;
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -8,28 +12,35 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lankheet.domotics.backend.config.MqttConfig;
-import com.lankheet.domotics.backend.dao.DaoListener;
-import io.dropwizard.lifecycle.Managed;
+import com.lankheet.iot.datatypes.domotics.SensorValue;
+import com.lankheet.iot.datatypes.entities.Measurement;
+import com.lankheet.iot.datatypes.entities.MeasurementType;
+import com.lankheet.iot.datatypes.entities.Sensor;
+import com.lankheet.iot.datatypes.entities.SensorType;
+import com.lankheet.utils.JsonUtil;
 
 /**
- * MQTT client manager that subscribes to the domotics topics. This managed service is started
- * before the Jetty service is and stopped after the Jetty service is stopped.
+ * MQTT client manager that subscribes to the domotics topics.
  */
-public class MqttClientManager implements Managed {
-    private static final Logger LOG = LoggerFactory.getLogger(MqttClientManager.class);
+public class MqttReader implements Runnable {
+    private static final Logger LOG = LoggerFactory.getLogger(MqttReader.class);
 
+    private volatile boolean isRunFlag = true;
+    
     private static final int MQTT_CONNECT_RETRY_TIMEOUT = 500;
 
     private MqttClient client;
-    private final MqttConnectOptions options = new MqttConnectOptions();;
+    private final MqttConnectOptions options = new MqttConnectOptions();
 
-    public MqttClientManager(MqttConfig mqttConfig, DaoListener dao) throws MqttException {
+    public MqttReader(MqttConfig mqttConfig, BlockingQueue<Measurement> queue) throws MqttException {
         String userName = mqttConfig.getUserName();
         String password = mqttConfig.getPassword();
         client = new MqttClient(mqttConfig.getUrl(), MqttClient.generateClientId());
 
-        client.setCallback(new BackendMqttCallback(this, dao));
+        client.setCallback(new BackendMqttCallback(this, queue));
         options.setConnectionTimeout(60);
         options.setKeepAliveInterval(60);
         options.setUserName(userName);
@@ -50,10 +61,21 @@ public class MqttClientManager implements Managed {
         client.publish(topic, message);
     }
 
-    @Override
-    public void start() throws MqttException, MqttSecurityException {
+    public void stop() throws Exception {
+        if (client.isConnected()) {
+            LOG.info("Closing mqtt connection...");
+            client.disconnect();
+        }
+    }
+
+    public MqttClient getClient() {
+        return client;
+    }
+
+	@Override
+	public void run() {
         LOG.info("Connecting mqtt broker with options: {}", options);
- 
+        
         do {
             try {
                 client.connect(options);
@@ -68,18 +90,19 @@ public class MqttClientManager implements Managed {
             }
         } while (!client.isConnected());
         LOG.info("Mqtt client connected: " + client.getClientId());
-        client.subscribe("#", 0);
-    }
+        try {
+			client.subscribe("#", 0);
+		} catch (MqttException ex) {
+			LOG.error("Could not subscribe: {}", ex);;
+		}
+        LOG.warn("End of the universe!");
+	}
 
-    @Override
-    public void stop() throws Exception {
-        if (client.isConnected()) {
-            LOG.info("Closing mqtt connection...");
-            client.disconnect();
-        }
-    }
+	public boolean isRunning() {
+		return isRunFlag;
+	}
 
-    public MqttClient getClient() {
-        return client;
-    }
+	public void setRunFlag(boolean isRunFlag) {
+		this.isRunFlag = isRunFlag;
+	}
 }

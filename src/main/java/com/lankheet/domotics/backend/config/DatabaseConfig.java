@@ -1,20 +1,19 @@
 package com.lankheet.domotics.backend.config;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DatabaseConfig {
 	
-	@NotEmpty
+	@JsonProperty
 	private String url;
 	
-	@NotEmpty
+	@JsonProperty
 	private String driver;
 	
-	@NotEmpty
+	@JsonProperty
 	private String userName;
 	
-	@NotEmpty
+	@JsonProperty
 	private String password;
 	
 	@JsonProperty
