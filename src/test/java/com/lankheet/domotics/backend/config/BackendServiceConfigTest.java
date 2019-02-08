@@ -1,6 +1,3 @@
-/**
- * Lankheet Solutions. Do whatever you like, but kindly include the source as a reference.
- */
 package com.lankheet.domotics.backend.config;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -17,30 +14,30 @@ import org.junit.Test;
  *
  */
 public class BackendServiceConfigTest {
-	private static BackendServiceConfig config;
+    private static BackendServiceConfig config;
 
-	@BeforeClass
-	public static void setupBackendServiceConfigTest() throws IOException {
-		config = BackendServiceConfig.loadConfigurationFromFile("src/test/resources/application.yml");
-	}
+    @BeforeClass
+    public static void setupBackendServiceConfigTest() throws IOException {
+        config = BackendServiceConfig.loadConfigurationFromFile("src/test/resources/application.yml");
+    }
 
-	@Test
-	public void testConfigDatabase() throws Exception {
-		DatabaseConfig databaseConfig = config.getDatabaseConfig();
-		assertThat(databaseConfig, is(notNullValue()));
-		assertThat(databaseConfig.getDriver(), is("com.mysql.jdbc.Driver"));
-		assertThat(databaseConfig.getUrl(), is("jdbc:mysql://localhost:3306/domotics"));
-		assertThat(databaseConfig.getUserName(), is("testuser"));
-		assertThat(databaseConfig.getPassword(), is("p@ssW0rd"));
-	}
+    @Test
+    public void testConfigDatabase() throws Exception {
+        DatabaseConfig databaseConfig = config.getDatabaseConfig();
+        assertThat(databaseConfig, is(notNullValue()));
+        assertThat(databaseConfig.getDriver(), is("com.mysql.jdbc.Driver"));
+        assertThat(databaseConfig.getUrl(), is("jdbc:mysql://localhost:3306/domotics"));
+        assertThat(databaseConfig.getUserName(), is("testuser"));
+        assertThat(databaseConfig.getPassword(), is("p@ssW0rd"));
+    }
 
-	@Test
-	public void testConfigMqtt() {
+    @Test
+    public void testConfigMqtt() {
 
-		MqttConfig mqttConfig = config.getMqttConfig();
-		assertThat(mqttConfig, is(notNullValue()));
-		assertThat(mqttConfig.getUrl(), is("tcp://localhost:1883"));
-		assertThat(mqttConfig.getUserName(), is("johndoe"));
-		assertThat(mqttConfig.getPassword(), is("secret"));
-	}
+        MqttConfig mqttConfig = config.getMqttConfig();
+        assertThat(mqttConfig, is(notNullValue()));
+        assertThat(mqttConfig.getUrl(), is("tcp://localhost:1883"));
+        assertThat(mqttConfig.getUserName(), is("johndoe"));
+        assertThat(mqttConfig.getPassword(), is("secret"));
+    }
 }

@@ -43,58 +43,58 @@ import com.lankheet.iot.datatypes.entities.Measurement;
  *
  */
 public class BackendService {
-	private static final Logger LOG = LogManager.getLogger(BackendService.class);
-	
-	public static void main(String[] args) throws Exception {
-		showBanner();
-		InputStream is = BackendService.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
-		Manifest manifest = new Manifest(is);
-		Attributes mainAttrs = manifest.getMainAttributes();
-		String title = mainAttrs.getValue("Implementation-Title");
-		String version = mainAttrs.getValue("Implementation-Version");
-		String classifier = mainAttrs.getValue("Implementation-Classifier");
-		if (args.length != 1) {
-			LOG.error("Wrong arguments");
-			showUsage(version, classifier);
-			return;
-		} else {
-			new BackendService().run(args[0]);
-		}
-	}
+    private static final Logger LOG = LogManager.getLogger(BackendService.class);
 
-	private static void showBanner() throws URISyntaxException, IOException {
-		String text = new Scanner(BackendService.class.getResourceAsStream("/banner.txt"), "UTF-8").useDelimiter("\\A")
-				.next();
-		System.out.println(text);
-	}
+    public static void main(String[] args) throws Exception {
+        showBanner();
+        InputStream is = BackendService.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
+        Manifest manifest = new Manifest(is);
+        Attributes mainAttrs = manifest.getMainAttributes();
+        String title = mainAttrs.getValue("Implementation-Title");
+        String version = mainAttrs.getValue("Implementation-Version");
+        String classifier = mainAttrs.getValue("Implementation-Classifier");
+        if (args.length != 1) {
+            LOG.error("Wrong arguments");
+            showUsage(version, classifier);
+            return;
+        } else {
+            new BackendService().run(args[0]);
+        }
+    }
 
-	private static void showUsage(String version, String classifier) {
-		System.out.println("Missing configuration file!");
-		System.out.println("Usage:");
-		System.out.println("java -jar lnb-powermeter-" + version + "-" + classifier + " config.yml");
-		;
-	}
+    private static void showBanner() throws URISyntaxException, IOException {
+        String text = new Scanner(BackendService.class.getResourceAsStream("/banner.txt"), "UTF-8").useDelimiter("\\A")
+                .next();
+        System.out.println(text);
+    }
 
-	public void run(String configurationFile) throws Exception {
-		BackendServiceConfig config = BackendServiceConfig.loadConfigurationFromFile(configurationFile);
-		BlockingQueue<Measurement> queue = new ArrayBlockingQueue<>(config.getInternalQueueSize());
+    private static void showUsage(String version, String classifier) {
+        System.out.println("Missing configuration file!");
+        System.out.println("Usage:");
+        System.out.println("java -jar lnb-powermeter-" + version + "-" + classifier + " config.yml");
+        ;
+    }
 
-		DatabaseAgent dbManager = new DatabaseAgent(config.getDatabaseConfig(), queue);
-		MqttReader mqttReader = new MqttReader(config.getMqttConfig(), queue);
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				LOG.warn("Shutdown Hook is running !");
-				// TODO: gracefully shutdown threads
-				if (mqttReader.isRunning()) {
-					mqttReader.setRunFlag(false);
-				}
-				if (dbManager.isRunning()) {
-					dbManager.setRunFlag(false);
-				}
-			}
-		});
+    public void run(String configurationFile) throws Exception {
+        BackendServiceConfig config = BackendServiceConfig.loadConfigurationFromFile(configurationFile);
+        BlockingQueue<Measurement> queue = new ArrayBlockingQueue<>(config.getInternalQueueSize());
 
-		new Thread(dbManager).start();
-		new Thread(mqttReader).start();
-	}
+        DatabaseAgent dbManager = new DatabaseAgent(config.getDatabaseConfig(), queue);
+        MqttReader mqttReader = new MqttReader(config.getMqttConfig(), queue);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                LOG.warn("Shutdown Hook is running !");
+                // TODO: gracefully shutdown threads
+                if (mqttReader.isRunning()) {
+                    mqttReader.setRunFlag(false);
+                }
+                if (dbManager.isRunning()) {
+                    dbManager.setRunFlag(false);
+                }
+            }
+        });
+
+        new Thread(dbManager).start();
+        new Thread(mqttReader).start();
+    }
 }

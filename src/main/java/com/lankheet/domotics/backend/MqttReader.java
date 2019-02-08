@@ -2,25 +2,16 @@ package com.lankheet.domotics.backend;
 
 import java.util.concurrent.BlockingQueue;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lankheet.domotics.backend.config.MqttConfig;
-import com.lankheet.iot.datatypes.domotics.SensorValue;
 import com.lankheet.iot.datatypes.entities.Measurement;
-import com.lankheet.iot.datatypes.entities.MeasurementType;
-import com.lankheet.iot.datatypes.entities.Sensor;
-import com.lankheet.iot.datatypes.entities.SensorType;
-import com.lankheet.utils.JsonUtil;
 
 /**
  * MQTT client manager that subscribes to the domotics topics.
@@ -29,7 +20,7 @@ public class MqttReader implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(MqttReader.class);
 
     private volatile boolean isRunFlag = true;
-    
+
     private static final int MQTT_CONNECT_RETRY_TIMEOUT = 500;
 
     private MqttClient client;
@@ -48,10 +39,10 @@ public class MqttReader implements Runnable {
     }
 
     /**
-     * TODO: This method should be triggered by the database command table change in order to configure
-     * clients.<BR>
-     * Possible commands: Command to switch something, Config to set a (set of) parameter(s), Measure:
-     * Invoke a sensor to generate a new measurement
+     * TODO: This method should be triggered by the database command table change in
+     * order to configure clients.<BR>
+     * Possible commands: Command to switch something, Config to set a (set of)
+     * parameter(s), Measure: Invoke a sensor to generate a new measurement
      * 
      * @param topic The command topic {CMD, CONFIG, MEASURE}
      * @throws MqttPersistenceException
@@ -72,14 +63,14 @@ public class MqttReader implements Runnable {
         return client;
     }
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
         LOG.info("Connecting mqtt broker with options: {}", options);
-        
+
         do {
             try {
                 client.connect(options);
-            } catch(MqttException | SecurityException ex) {
+            } catch (MqttException | SecurityException ex) {
                 LOG.error("Unable to connect to Mqtt broker!");
                 try {
                     Thread.sleep(MQTT_CONNECT_RETRY_TIMEOUT);
@@ -91,18 +82,18 @@ public class MqttReader implements Runnable {
         } while (!client.isConnected());
         LOG.info("Mqtt client connected: " + client.getClientId());
         try {
-			client.subscribe("#", 0);
-		} catch (MqttException ex) {
-			LOG.error("Could not subscribe: {}", ex);;
-		}
+            client.subscribe("#", 0);
+        } catch (MqttException ex) {
+            LOG.error("Could not subscribe: {}", ex);
+        }
         LOG.warn("End of the universe!");
-	}
+    }
 
-	public boolean isRunning() {
-		return isRunFlag;
-	}
+    public boolean isRunning() {
+        return isRunFlag;
+    }
 
-	public void setRunFlag(boolean isRunFlag) {
-		this.isRunFlag = isRunFlag;
-	}
+    public void setRunFlag(boolean isRunFlag) {
+        this.isRunFlag = isRunFlag;
+    }
 }
