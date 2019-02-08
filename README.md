@@ -1,29 +1,29 @@
 # lnb-domotics-backend
-LNB domotics message server. Serving measurements from the local domotics servers via message brokers.
+LNB domotics measurements to database agent.
 ## Starting the service
 <code>
-  java -jar lnb-domotics-backend-<version>.jar server application.yml
+  java -jar lnb-domotics-backend-<version>.jar application.yml
 </code>
   
 ## It has the following features:
 * Receive measurements from the local domotics message broker
-* Store these measurements in a database (one database per site), only if it is a new measurement. We don't need duplicate values.
-* Request measurements via REST interface.
+* Store these measurements in a database.
 * Reconnecting when database or mqtt connection are gone.
 
 ## It lacks the following features:
-* resources for requesting measurements more intelligently
-* Security (ahum); login and reading permissions
-* resources for adding homes, rooms, sensors, users and credentials
+* Security (ahum); there is simply no end-point on this piece of software
 * Accepting arrays of measurements, now it accepts one measurement per mqtt call
-* Detecting that the mqtt port is not accessible. For some reason it just sits there and waits.
-* Giving you health and prosperity (that will be a tough one, i admit)
+* Signalling that the mqtt port is not accessible. It just polls for the connection to re-appear
+* Signalling that the database connection is gone. 
+* Signalling that the internal queue is filled up (for 50, 75 and 100%)
 
 ## Technical specs
-* Accepts JSON measurements from a message broker, no aggregation, yet!
+* Accepts JSON measurements from a message broker
 * Uses JPA / Hibernate to store in MySQL. But it can also work with any other database as long as you specify the details in the yaml configuration file AND you put the driver JAR on the classpath.
-* Uses dropwizard as framework
+* Plain Java 8 application
 * Uses eclipse paho as mqtt client
+* Uses an internal blocking queue to transfer data from the mqtt thread to database agent thread. Current capacity is a configurable parameter. When the database is not available, measurments are stored in the queue until it comes available again.
+When a queue of 10000 capacity is used, then when 10 sensor values per second are received, 1000 seconds / 3600 is 16 minutes of time is left before data gets lost.
 
 # How to setup the domotics eco-system:
 You could do this several ways. I installed mosquitto on 
@@ -68,4 +68,5 @@ Please review the settings in the application.yml configuration file for logging
 
 # What's next?
 So now you have a micro service that handles your home's sensor data. Okay, what then?
-See the power-meter repo: https://github.com/yeronimuz/PowerMeter
+See the power-meter repo: https://github.com/yeronimuz/PowerMeter for reading measurements from your smart power meter.
+and the web-service repo: https://github.com/yeronimuz/lnb-iot-webservice
