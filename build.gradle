@@ -9,7 +9,7 @@ apply plugin: 'application'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
-version '0.3'
+version '0.4'
 
 ext {
     baseName = 'lnb-domotics-backend'
